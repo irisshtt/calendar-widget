@@ -3,103 +3,144 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pink Calendar Widget</title>
+<title>Calendar Widget</title>
 
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
 body{
     margin:0;
     background:transparent;
-    font-family:'DM Sans', sans-serif;
+    font-family:'Work Sans', sans-serif;
     display:flex;
     justify-content:center;
-    overflow:hidden;
+    align-items:center;
+    min-height:100vh;
 }
 
 .calendar{
-    width:100%;
-    max-width:340px;
-    background:#f3e6ea;
-    border-radius:20px;
-    padding:20px;
-    box-sizing:border-box;
-    box-shadow:0 10px 30px rgba(0,0,0,0.08);
+    width:320px;
+    background:#f2f2f2;
+    border-radius:18px;
+    padding:18px 18px 22px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.08);
+    position:relative;
+}
+
+/* speech bubble */
+.calendar::after{
+    content:"";
+    position:absolute;
+    bottom:-12px;
+    left:50%;
+    transform:translateX(-50%);
+    width:0;
+    height:0;
+    border-left:12px solid transparent;
+    border-right:12px solid transparent;
+    border-top:12px solid #f2f2f2;
 }
 
 .header{
     display:flex;
-    justify-content:space-between;
     align-items:center;
-    margin-bottom:15px;
+    justify-content:space-between;
+    margin-bottom:10px;
 }
 
 .month{
     font-weight:600;
-    font-size:18px;
+    font-size:16px;
+    letter-spacing:0.3px;
 }
 
 .nav{
     cursor:pointer;
     font-size:18px;
-    padding:4px 8px;
-    border-radius:8px;
-    transition:0.2s;
+    color:#444;
+    padding:4px 6px;
+    border-radius:6px;
+    transition:0.15s;
 }
 
 .nav:hover{
-    background:rgba(0,0,0,0.05);
+    background:rgba(0,0,0,0.08);
 }
 
-.days{
+.week{
     display:grid;
     grid-template-columns:repeat(7,1fr);
     font-size:12px;
-    opacity:0.6;
-    margin-bottom:8px;
+    color:#8c8c8c;
+    margin-bottom:6px;
+    text-align:center;
+}
+
+.week div{
+    padding:6px 0;
+    font-weight:500;
 }
 
 .dates{
     display:grid;
     grid-template-columns:repeat(7,1fr);
-    gap:6px;
+    gap:4px;
 }
 
 .date{
     text-align:center;
-    padding:8px 0;
-    border-radius:10px;
+    padding:7px 0;
     font-size:13px;
+    border-radius:8px;
     cursor:pointer;
-    transition:0.2s;
+    transition:0.15s;
+    color:#3b3b3b;
 }
 
 .date:hover{
-    background:rgba(0,0,0,0.05);
+    background:rgba(0,0,0,0.07);
 }
 
 .today{
-    background:#111;
+    background:#3a3a3a;
     color:white;
+    font-weight:600;
 }
+
+.muted{
+    color:#bfbfbf;
+}
+
+.footer{
+    position:absolute;
+    bottom:8px;
+    right:10px;
+    font-size:18px;
+    color:#777;
+}
+
 </style>
 </head>
 
 <body>
 
 <div class="calendar">
+
     <div class="header">
         <div class="nav" onclick="prevMonth()">‹</div>
         <div class="month" id="monthYear"></div>
         <div class="nav" onclick="nextMonth()">›</div>
     </div>
 
-    <div class="days">
-        <div>Sun</div><div>Mon</div><div>Tue</div>
-        <div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+    <div class="week">
+        <div>M</div><div>T</div><div>W</div>
+        <div>T</div><div>F</div><div>S</div><div>S</div>
     </div>
 
     <div class="dates" id="dates"></div>
+
+    <div class="footer">⚙</div>
+
 </div>
 
 <script>
@@ -110,32 +151,50 @@ let currentDate = new Date();
 
 function renderCalendar(date){
     datesContainer.innerHTML = "";
+
     const year = date.getFullYear();
     const month = date.getMonth();
 
-    const firstDay = new Date(year, month, 1).getDay();
+    const firstDay = (new Date(year, month, 1).getDay() + 6) % 7;
     const lastDate = new Date(year, month + 1, 0).getDate();
+    const prevLastDate = new Date(year, month, 0).getDate();
 
     monthYear.textContent = date.toLocaleString("default", { month: "long", year: "numeric" });
 
-    for(let i=0; i<firstDay; i++){
-        datesContainer.innerHTML += "<div></div>";
+    /* previous month */
+    for(let i=firstDay; i>0; i--){
+        const d = document.createElement("div");
+        d.classList.add("date","muted");
+        d.textContent = prevLastDate - i + 1;
+        datesContainer.appendChild(d);
     }
 
+    /* current */
     for(let i=1; i<=lastDate; i++){
         const day = document.createElement("div");
         day.classList.add("date");
         day.textContent = i;
 
-        if(
-            i === new Date().getDate() &&
-            month === new Date().getMonth() &&
-            year === new Date().getFullYear()
-        ){
+        const today = new Date();
+
+        if(i === today.getDate() &&
+           month === today.getMonth() &&
+           year === today.getFullYear()){
             day.classList.add("today");
         }
 
         datesContainer.appendChild(day);
+    }
+
+    /* next */
+    const total = firstDay + lastDate;
+    const nextDays = 42 - total;
+
+    for(let i=1; i<=nextDays; i++){
+        const d = document.createElement("div");
+        d.classList.add("date","muted");
+        d.textContent = i;
+        datesContainer.appendChild(d);
     }
 }
 
@@ -154,3 +213,4 @@ renderCalendar(currentDate);
 
 </body>
 </html>
+
