@@ -12,23 +12,21 @@ body{
     margin:0;
     background:transparent;
     font-family:'Work Sans', sans-serif;
-    display:flex;
-    justify-content:center;
-    align-items:flex-start;
     width:100%;
+    overflow:hidden;
 }
 
 .calendar{
     width:100%;
-    max-width:100%;
     aspect-ratio:1/1;
     background:#f2f2f2;
     border-radius:18px;
-    padding:clamp(10px,3vw,18px);
+    padding:clamp(8px,2.5vw,16px);
     box-shadow:0 10px 25px rgba(0,0,0,0.08);
     position:relative;
     display:flex;
     flex-direction:column;
+    overflow:hidden;
 }
 
 
@@ -89,7 +87,8 @@ body{
 .dates{
     display:grid;
     grid-template-columns:repeat(7,1fr);
-    gap:4px;
+    gap:clamp(2px,0.6vw,4px);
+    flex:1;
 }
 
 .date{
